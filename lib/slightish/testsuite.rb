@@ -15,16 +15,19 @@ class Slightish::TestSuite
     sandbox = Slightish::Sandbox.new(template_dir: ENV['SLIGHTISH_TEMPLATE_DIR'])
 
     begin
-      @test_cases.each do |test|
-        test.run(sandbox)
-        next if test.passed?
-
-        puts("❌  #{test.source_description}".bold)
-        puts(test.failure_description)
-        puts
-      end
+      @test_cases.each { |test| test.run(sandbox) }
     ensure
       sandbox.delete
+    end
+  end
+
+  def print_failures
+    failed_tests = @test_cases.select { |test| !test.passed? }
+
+    failed_tests.each do |test|
+      puts("❌  #{test.source_description}".bold)
+      puts(test.failure_description)
+      puts
     end
   end
 

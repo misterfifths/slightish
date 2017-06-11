@@ -19,7 +19,9 @@ class Slightish::Command
 
     worker_threads.each(&:join)
 
-    puts('----------')
+    suites.each(&:print_failures)
+
+    puts('----------') if suites.any? { |suite| !suite.passed? }
 
     total_tests = 0
     total_passed = 0
