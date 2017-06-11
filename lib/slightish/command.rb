@@ -21,7 +21,7 @@ class Slightish::Command
 
     suites.each(&:print_failures)
 
-    puts('----------') if suites.any? { |suite| !suite.passed? }
+    puts('----------') if suites.any?(&:failed?)
 
     total_tests = 0
     total_passed = 0

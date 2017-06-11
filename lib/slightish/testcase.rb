@@ -29,6 +29,10 @@ class Slightish::TestCase
       @actual_exit_code == @expected_exit_code
   end
 
+  def failed?
+    !passed?
+  end
+
   def failure_description
     res = ''
 
@@ -86,7 +90,12 @@ class Slightish::TestCase
     if @raw_command.nil?
       @raw_command = str
     else
-      @raw_command += "\n" + str
+      # bash eats newlines from multiline strings, so no \n here
+      # For example:
+      # "echo a\
+      # b"
+      # produces "ab"
+      @raw_command += str
     end
   end
 

@@ -22,9 +22,7 @@ class Slightish::TestSuite
   end
 
   def print_failures
-    failed_tests = @test_cases.select { |test| !test.passed? }
-
-    failed_tests.each do |test|
+    @test_cases.select(&:failed?).each do |test|
       puts("❌  #{test.source_description}".bold)
       puts(test.failure_description)
       puts
@@ -35,12 +33,16 @@ class Slightish::TestSuite
     @test_cases.all?(&:passed?)
   end
 
+  def failed?
+    @test_cases.any?(&:failed?)
+  end
+
   def passed_count
     @test_cases.count(&:passed?)
   end
 
   def failed_count
-    @test_cases.count { |test| !test.passed? }
+    @test_cases.count(&:failed?)
   end
 
   private
