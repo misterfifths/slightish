@@ -88,19 +88,19 @@ class Slightish::TestSuite
     current_case = nil
     state = ParseState::AWAITING_COMMAND
 
-    file_contents.each_line.with_index do |line, i|
+    file_contents.each_line.with_index(1) do |line, line_number|
       if state == ParseState::READING_MULTILINE_COMMAND
         if line =~ /^(?<cmd>.*)\\$/
           # multiline input continues
           current_case.append_command(Regexp.last_match(:cmd))
-          current_case.end_line = i + 1
+          current_case.end_line = line_number
 
           state = ParseState::READING_MULTILINE_COMMAND
           next
         else
           # final line of multiline input
           current_case.append_command(line)
-          current_case.end_line = i + 1
+          current_case.end_line = line_number
 
           state = ParseState::AWAITING_RESULT_OR_COMMAND
           next
@@ -114,7 +114,7 @@ class Slightish::TestSuite
         if line =~ /^\| (?<output>.*)$/
           # accumulating expected stdout
           current_case.append_expected_output(Regexp.last_match(:output))
-          current_case.end_line = i + 1
+          current_case.end_line = line_number
 
           state = ParseState::AWAITING_RESULT_OR_COMMAND
           next
@@ -125,14 +125,14 @@ class Slightish::TestSuite
         if line =~ /^@ (?<error_output>.*)$/
           # accumulating expected stderr
           current_case.append_expected_error_output(Regexp.last_match(:error_output))
-          current_case.end_line = i + 1
+          current_case.end_line = line_number
 
           state = ParseState::AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND
           next
         elsif line =~ /\? (?<exit_code>\d+)$/
           # got exit code; only possible option from here is a new command
           current_case.expected_exit_code = Regexp.last_match(:exit_code).to_i
-          current_case.end_line = i + 1
+          current_case.end_line = line_number
 
           state = ParseState::AWAITING_COMMAND
           next
@@ -142,7 +142,7 @@ class Slightish::TestSuite
       # state is anything, and we are looking for a new command
       if line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
         current_case = Slightish::TestCase.new(file_name)
-        current_case.start_line = current_case.end_line = i + 1
+        current_case.start_line = current_case.end_line = line_number
         @test_cases << current_case
 
         current_case.append_command(Regexp.last_match(:cmd))
