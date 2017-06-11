@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'slightish'
+
+ARGV.each do |file|
+    suite = Slightish::TestSuite.new(file)
+    suite.run
+end
