@@ -5,11 +5,13 @@ class String
     STDOUT.isatty
   end
 
-  { red: 1,
+  {
+    red: 1,
     green: 2,
     yellow: 3,
     blue: 4,
-    gray: 7 }.each do |name, code|
+    gray: 7
+  }.each do |name, code|
     bg_name = ('bg_' + name.to_s).to_sym
 
     if color_output?
@@ -30,22 +32,23 @@ class String
   end
 
   def expand(chdir: nil, source: nil)
-    # $VARIABLE
-    res = gsub(/\$(?<var_name>[[:alnum:]_]+)/) { |match| ENV.fetch(Regexp.last_match(:var_name), match) }
-    # ${VARIABLE}
-    res.gsub!(/\$\{(?<var_name>[[:alnum:]_]+)\}/) { |match| ENV.fetch(Regexp.last_match(:var_name), match) }
+    # Non-existent environmental variables are not replaced.
+    # A little unexpected, but it's the behavior of tush.
+    # TODO: print a warning when this happens?
+    variable_replacer = ->(match) { ENV.fetch(Regexp.last_match(:var_name), match) }
+    res = gsub(/\$(?<var_name>[[:alnum:]_]+)/, &variable_replacer) # $VARIABLE
+    res.gsub!(/\$\{(?<var_name>[[:alnum:]_]+)\}/, &variable_replacer) # ${VARIABLE}
 
-    # $(COMMAND)
-    res.gsub!(/\$\((?<cmd>[^\)]+)\)/) { _capture_stdout_with_logging(Regexp.last_match(:cmd), chdir, source) }
-    # `COMMAND`
-    res.gsub!(/`(?<cmd>[^`]+)`/) { _capture_stdout_with_logging(Regexp.last_match(:cmd), chdir, source) }
+    command_replacer = ->(_) { capture_stdout_with_logging(Regexp.last_match(:cmd), chdir, source) }
+    res.gsub!(/\$\((?<cmd>[^\)]+)\)/, &command_replacer) # $(COMMAND)
+    res.gsub!(/`(?<cmd>[^`]+)`/, &command_replacer) # `COMMAND`
 
     res
   end
 
   private
 
-  def _capture_stdout_with_logging(cmd, chdir, source)
+  def capture_stdout_with_logging(cmd, chdir, source)
     stdout, stderr, status = Open3.capture3(cmd, { chdir: chdir })
 
     unless stderr.empty?
