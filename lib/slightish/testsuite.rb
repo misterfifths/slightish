@@ -53,33 +53,29 @@ class Slightish::TestSuite
     # AWAITING_COMMAND -> READING_MULTILINE_COMMAND on '$ .*\' (starting a new command)
     # AWAITING_COMMAND -> AWAITING_RESULT_OR_COMMAND on '$ .*' (starting a new command)
     # any other meaningful line on AWAITING_COMMAND is an error
-    # EOF is fine; no stdout or stderr, and expected exit code = 0
 
     # READING_MULTILINE_COMMAND -> READING_MULTILINE_COMMAND on '.*\'
-    # READING_MULTILINE_COMMAND -> AWAITING_RESULT_OR_COMMAND on '.*'
+    # READING_MULTILINE_COMMAND -> AWAITING_RESULT_OR_COMMAND on anything else
     # EOF from this state is error-ish, but eh, not worth it
 
     # AWAITING_RESULT_OR_COMMAND -> AWAITING_RESULT_OR_COMMAND on '| .*'
     # AWAITING_RESULT_OR_COMMAND -> AWAITING_COMMAND on '? \d+' (starting a new command)
-    # AWAITING_RESULT_OR_COMMAND -> READING_MULTILINE_COMMAND on '$ .*\' (starting a new command; exit code on previous command is 0)
-    # AWAITING_RESULT_OR_COMMAND -> AWAITING_RESULT_OR_COMMAND on '$ .*' (starting a new command; exit code on previous command is 0)
-    # AWAITING_RESULT_OR_COMMAND -> AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND on '@ .*' (accumulating stderr; stdout lines are no longer acceptable)
-    # EOF from here is fine; expected exit code = 0
+    # AWAITING_RESULT_OR_COMMAND -> AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND on '@ .*' (now accumulating stderr; stdout lines are no longer acceptable)
+    # inherits the AWAITING_COMMAND transitions
 
-    # AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND -> AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND on '@ .*'
-    # AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND -> AWAITING_COMMAND on '? \d+' (starting new command)
-    # AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND -> READING_MULTILINE_COMMAND on '$ .*\' (starting a new command; exit code on previous command is 0)
-    # AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND -> AWAITING_RESULT_OR_COMMAND on '$ .*' (starting a new command; exit code on previous command is 0)
+    # AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND has same productions as AWAITING_RESULT_OR_COMMAND, except '| .*'
+    # '| .*' from here is an error
     # EOF from here is fine; expected exit code = 0
 
     # These are subsets of each other. So, we can test in this order and not repeat ourselves:
     # READING_MULTILINE_COMMAND
+    # skip the line unless it begins with one of the magic strings
     # AWAITING_RESULT_OR_COMMAND
       # test for '| .*', else fall through
     # AWAITING_RESULT_OR_COMMAND || AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND
       # test for '@ .*' and '? \d+', else fall through
     # AWAITING_COMMAND || AWAITING_RESULT_OR_COMMAND || AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND
-      # test for '$ .*\' or '$ .*'; anything else meaningful is an error
+      # test for '$ .*\' or '$ .*'; anything else is an error
   end
 
   def parse(file_name, file_contents)
@@ -97,7 +93,7 @@ class Slightish::TestSuite
 
           state = ParseState::READING_MULTILINE_COMMAND
         else
-          # final line of multiline input
+          # final line of multiline input; consume the whole thing
           current_case.append_command(line)
           current_case.end_line = line_number
 
