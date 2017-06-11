@@ -41,8 +41,14 @@ module Slightish
   class Sandbox
     attr_reader :path
 
-    def initialize(prefix: 'slightish')
+    def initialize(template_dir: nil, prefix: 'slightish')
       @path = Dir.mktmpdir(prefix)
+
+      unless template_dir.nil?
+        # The '.' prevents cp_r from making a new directory at the destination --
+        # kind of the equivalent of '/*' in bash.
+        FileUtils.cp_r(File.join(template_dir, '.'), @path)
+      end
 
       if block_given?
         begin
@@ -173,7 +179,7 @@ module Slightish
     end
 
     def run
-      sandbox = Sandbox.new
+      sandbox = Sandbox.new(template_dir: ENV['SLIGHTISH_TEMPLATE_DIR'])
 
       begin
         @test_cases.each do |test|
