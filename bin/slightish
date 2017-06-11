@@ -2,13 +2,18 @@
 
 require 'slightish'
 
+Thread.abort_on_exception = true
+
 suites = []
+worker_threads = []
 
 ARGV.each do |file|
     suite = Slightish::TestSuite.new(file)
     suites << suite
-    suite.run
+    worker_threads << Thread.new { suite.run }
 end
+
+worker_threads.each { |thread| thread.join }
 
 puts("----------")
 
