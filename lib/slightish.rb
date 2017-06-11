@@ -171,10 +171,12 @@ module Slightish
   end
   
   class TestSuite
-    attr_reader :path, :test_cases
+    attr_reader :name, :path, :test_cases
 
     def initialize(path)
       @path = path
+      @name = File.basename(path)
+
       parse(path, File.read(path))
     end
 
@@ -196,7 +198,15 @@ module Slightish
     end
 
     def passed?
-      @test_cases.all? {|test| test.passed?}
+      @test_cases.all? { |test| test.passed? }
+    end
+
+    def passed_count
+      @test_cases.count { |test| test.passed? }
+    end
+
+    def failed_count
+      @test_cases.count { |test| !test.passed? }
     end
 
     private
