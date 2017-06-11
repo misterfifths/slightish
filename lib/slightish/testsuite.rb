@@ -140,7 +140,10 @@ class Slightish::TestSuite
       end
 
       # state is anything, and we are looking for a new command
-      raise "invalid line '#{line}'" unless line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
+      unless line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
+        STDERR.puts("error: invalid line in test file #{file_name}:#{line_number}; expected a '$ ' line")
+        Process.exit(2)
+      end
 
       current_case = Slightish::TestCase.new(file_name)
       current_case.start_line = current_case.end_line = line_number
