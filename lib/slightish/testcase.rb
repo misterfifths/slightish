@@ -24,8 +24,8 @@ class Slightish::TestCase
   end
 
   def passed?
-    @actual_output == (@expected_output || '') &&
-      @actual_error_output == (@expected_error_output || '') &&
+    @actual_output == @expected_output &&
+      @actual_error_output == @expected_error_output &&
       @actual_exit_code == @expected_exit_code
   end
 
@@ -33,7 +33,7 @@ class Slightish::TestCase
     res = ''
 
     if @actual_output != (@expected_output || '')
-      if @expected_output.nil?
+      if @expected_output.empty?
         res += "Expected stdout: empty\n".red.bold
       else
         res += "Expected stdout:\n".red.bold
@@ -50,7 +50,7 @@ class Slightish::TestCase
 
     if @actual_error_output != (@expected_error_output || '')
       res += "\n\n" unless res == ''
-      if @expected_error_output.nil?
+      if @expected_error_output.empty?
         res += "Expected stderr: empty\n".red.bold
       else
         res += "Expected stderr:\n".red.bold
@@ -110,7 +110,7 @@ class Slightish::TestCase
 
   def expand(sandbox)
     @command = @raw_command.expand(chdir: sandbox.path, source: source_description)
-    @expected_output = @raw_expected_output.expand(chdir: sandbox.path, source: source_description) unless @raw_expected_output.nil?
-    @expected_error_output = @raw_expected_error_output.expand(chdir: sandbox.path, source: source_description) unless @raw_expected_error_output.nil?
+    @expected_output = (@raw_expected_output || '').expand(chdir: sandbox.path, source: source_description)
+    @expected_error_output = (@raw_expected_error_output || '').expand(chdir: sandbox.path, source: source_description)
   end
 end
