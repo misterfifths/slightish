@@ -2,9 +2,40 @@
 
 require 'fileutils'
 require 'tmpdir'
-require 'Open3'
+require 'open3'
 
 require 'slightish/version'
+
+class String
+  def self.color_output?
+      STDOUT.isatty
+  end
+
+  { :red     => 1,
+    :green   => 2,
+    :yellow  => 3,
+    :blue    => 4,
+    :gray    => 7
+  }.each do |name, code|
+      bg_name = ('bg_' + name.to_s).to_sym
+
+      if color_output?
+          define_method(name) { "\e[#{code + 30}m#{self}\e[39m" }
+          define_method(bg_name) { "\e[#{code + 40}m#{self}\e[49m" }
+      else
+          define_method(name) { self }
+          define_method(bg_name) { self }
+      end
+  end
+
+  { :bold => 1, :faint => 2 }.each do |name, code|
+      if color_output?
+          define_method(name) { "\e[#{code}m#{self}\e[22m" }
+      else
+          define_method(name) { self }
+      end
+  end
+end
 
 module Slightish
   class Sandbox
@@ -14,8 +45,11 @@ module Slightish
       @path = Dir.mktmpdir(prefix)
 
       if block_given?
-        Dir.chdir(@path) { yield self }
-        delete
+        begin
+          Dir.chdir(@path) { yield self }
+        ensure
+          delete
+        end
       end
     end
 
@@ -46,6 +80,59 @@ module Slightish
       @actual_output == (@expected_output || '') &&
       @actual_error_output == (@expected_error_output || '') &&
       @actual_exit_code == @expected_exit_code
+    end
+
+    def failure_description
+      res = ''
+
+      if @actual_output != (@expected_output || '')
+        if @expected_output.nil?
+          res += "Expected stdout: empty\n".red.bold
+        else
+          res += "Expected stdout:\n".red.bold
+          res += @expected_output.gray + "\n"
+        end
+
+        if @actual_output.empty?
+          res += "Actual stdout: empty".green.bold
+        else
+          res += "Actual stdout:\n".green.bold
+          res += @actual_output.gray
+        end
+      end
+
+      if @actual_error_output != (@expected_error_output || '')
+        res += "\n\n" unless res == ''
+        if @expected_error_output.nil?
+          res += "Expected stderr: empty\n".red.bold
+        else
+          res += "Expected stderr: ".red.bold
+          res += (@expected_error_output || '').gray + "\n"
+        end
+
+        if @actual_error_output.empty?
+          res += "Actual stderr: empty".green.bold
+        else
+          res += "Actual stderr:\n".green.bold
+          res += @actual_error_output.gray
+        end
+      end
+
+      if @actual_exit_code != @expected_exit_code
+        res += "\n\n" unless res == ''
+        res += "Expected exit code: ".red.bold + @expected_exit_code.to_s.gray + "\n"
+        res += "Actual error code: ".green.bold + @actual_exit_code.to_s.gray
+      end
+
+      res
+    end
+
+    def source_description
+      if @start_line == @end_line
+        return "#{@source_file}:@{@start_line}"
+      else
+        return "#{@source_file}:#{@start_line}-#{@end_line}"
+      end
     end
 
     def append_command(str)
@@ -87,12 +174,15 @@ module Slightish
 
     def run
       sandbox = Sandbox.new
-      puts("Running in #{sandbox.path}")
 
       begin
         @test_cases.each do |test|
           test.run(sandbox)
-          puts(test.inspect) #unless test.passed?
+          unless test.passed?
+            puts("❌  #{test.source_description}".bold)
+            puts(test.failure_description)
+            puts()
+          end
         end
       ensure
         sandbox.delete
