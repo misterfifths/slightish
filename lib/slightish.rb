@@ -35,6 +35,42 @@ class String
           define_method(name) { self }
       end
   end
+
+  def expand(chdir: nil, source: nil)
+    # $VARIABLE
+    res = gsub(/\$(?<var_name>[[:alnum:]_]+)/) { |match| ENV.fetch(Regexp.last_match(:var_name), match) }
+    # ${VARIABLE}
+    res.gsub!(/\$\{(?<var_name>[[:alnum:]_]+)\}/) { |match| ENV.fetch(Regexp.last_match(:var_name), match) }
+
+    # $(COMMAND)
+    res.gsub!(/\$\((?<cmd>[^\)]+)\)/) { _capture_stdout_with_logging(Regexp.last_match(:cmd), chdir, source) }
+    # `COMMAND`
+    res.gsub!(/`(?<cmd>[^`]+)`/) { _capture_stdout_with_logging(Regexp.last_match(:cmd), chdir, source) }
+
+    res
+  end
+
+  private
+
+  def _capture_stdout_with_logging(cmd, chdir, source)
+    stdout, stderr, status = Open3.capture3(cmd, {:chdir => chdir})
+
+    unless stderr.empty?
+      message = 'warning: stderr from command substitution ('
+      message += source + '; ' unless source.nil? || source.empty?
+      message += "'#{cmd}') will be ignored"
+      STDERR.puts(message.yellow)
+    end
+
+    unless status.exitstatus == 0
+      message = "warning: nonzero exit code ({#status.exitstatus}) from command substitution ("
+      message += source + '; ' unless source.nil? || source.empty?
+      message += "'#{cmd}')"
+      STDERR.puts(message.yellow)
+    end
+
+    stdout.chomp
+  end
 end
 
 module Slightish
@@ -65,10 +101,13 @@ module Slightish
   end
 
   class TestCase
-    attr_accessor :source_file, :start_line, :end_line
-    attr_accessor :command
-    attr_accessor :expected_output, :expected_error_output, :expected_exit_code
-    attr_accessor :actual_output, :actual_error_output, :actual_exit_code
+    attr_reader :source_file
+    attr_accessor :start_line, :end_line
+    attr_reader :raw_command, :command
+    attr_reader :raw_expected_output, :expected_output
+    attr_reader :raw_expected_error_output, :expected_error_output
+    attr_accessor :expected_exit_code
+    attr_reader :actual_output, :actual_error_output, :actual_exit_code
 
     def initialize(source_file)
       @source_file = source_file
@@ -76,6 +115,8 @@ module Slightish
     end
 
     def run(sandbox)
+      expand(sandbox)
+
       @actual_output, @actual_error_output, process_status = Open3.capture3(@command, {:chdir => sandbox.path})
       @actual_output.chomp!
       @actual_error_output.chomp!
@@ -112,7 +153,7 @@ module Slightish
         if @expected_error_output.nil?
           res += "Expected stderr: empty\n".red.bold
         else
-          res += "Expected stderr: ".red.bold
+          res += "Expected stderr:\n".red.bold
           res += (@expected_error_output || '').gray + "\n"
         end
 
@@ -142,31 +183,35 @@ module Slightish
     end
 
     def append_command(str)
-      if @command.nil?
-        @command = str
+      if @raw_command.nil?
+        @raw_command = str
       else
-        @command += "\n" + str
+        @raw_command += "\n" + str
       end
     end
 
     def append_expected_output(str)
-      if @expected_output.nil?
-        @expected_output = str
+      if @raw_expected_output.nil?
+        @raw_expected_output = str
       else
-        @expected_output += "\n" + str
+        @raw_expected_output += "\n" + str
       end
     end
     
     def append_expected_error_output(str)
-      if @expected_error_output.nil?
-        @expected_error_output = str
+      if @raw_expected_error_output.nil?
+        @raw_expected_error_output = str
       else
-        @expected_error_output += "\n" + str
+        @raw_expected_error_output += "\n" + str
       end
     end
 
-    def inspect
-      "#{@source_file}:#{@start_line}-#{@end_line}\n  Command: '#{@command}'\n  Expected stdout: '#{@expected_output}'\n  Expected stderr: '#{@expected_error_output}'\n  Expected exit code: #{@expected_exit_code}\n  Actual stdout: '#{actual_output}'\n  Actual stderr: '#{@actual_error_output}'\n  Actual exit code: #{@actual_exit_code}"
+    private
+
+    def expand(sandbox)
+      @command = @raw_command.expand(chdir: sandbox.path, source: source_description)
+      @expected_output = @raw_expected_output.expand(chdir: sandbox.path, source: source_description) unless @raw_expected_output.nil?
+      @expected_error_output = @raw_expected_error_output.expand(chdir: sandbox.path, source: source_description) unless @raw_expected_error_output.nil?
     end
   end
   
@@ -262,14 +307,14 @@ module Slightish
           if line =~ /^(?<cmd>.*)\\$/
             # multiline input continues
             current_case.append_command(Regexp.last_match(:cmd))
-            current_case.end_line = i
+            current_case.end_line = i + 1
 
             state = ParseState::READING_MULTILINE_COMMAND
             next
           else
             # final line of multiline input
             current_case.append_command(line)
-            current_case.end_line = i
+            current_case.end_line = i + 1
 
             state = ParseState::AWAITING_RESULT_OR_COMMAND
             next
@@ -283,7 +328,7 @@ module Slightish
           if line =~ /^\| (?<output>.*)$/
             # accumulating expected stdout
             current_case.append_expected_output(Regexp.last_match(:output))
-            current_case.end_line = i
+            current_case.end_line = i + 1
 
             state = ParseState::AWAITING_RESULT_OR_COMMAND
             next
@@ -294,14 +339,14 @@ module Slightish
           if line =~ /^@ (?<error_output>.*)$/
             # accumulating expected stderr
             current_case.append_expected_error_output(Regexp.last_match(:error_output))
-            current_case.end_line = i 
+            current_case.end_line = i + 1
 
             state = ParseState::AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND
             next
           elsif line =~ /\? (?<exit_code>\d+)$/
             # got exit code; only possible option from here is a new command
             current_case.expected_exit_code = Regexp.last_match(:exit_code).to_i
-            current_case.end_line = i
+            current_case.end_line = i + 1
 
             state = ParseState::AWAITING_COMMAND
             next
@@ -311,10 +356,10 @@ module Slightish
         # state is anything, and we are looking for a new command
         if line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
           current_case = TestCase.new(file_name)
-          current_case.start_line = current_case.end_line = i
+          current_case.start_line = current_case.end_line = i + 1
           @test_cases << current_case
 
-          current_case.command = Regexp.last_match(:cmd)
+          current_case.append_command(Regexp.last_match(:cmd))
 
           # entering multiline mode if we matched the slash
           multiline = Regexp.last_match(:multiline) == '\\'
