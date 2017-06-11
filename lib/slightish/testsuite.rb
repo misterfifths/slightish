@@ -33,7 +33,7 @@ class Slightish::TestSuite
   end
 
   def passed_count
-    @test_cases.count?(&:passed?)
+    @test_cases.count(&:passed?)
   end
 
   def failed_count
