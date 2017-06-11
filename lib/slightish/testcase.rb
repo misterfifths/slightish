@@ -17,7 +17,7 @@ class Slightish::TestCase
   def run(sandbox)
     expand(sandbox)
 
-    @actual_output, @actual_error_output, process_status = Open3.capture3(@command, {:chdir => sandbox.path})
+    @actual_output, @actual_error_output, process_status = Open3.capture3(@command, { chdir: sandbox.path })
     @actual_output.chomp!
     @actual_error_output.chomp!
     @actual_exit_code = process_status.exitstatus
@@ -25,8 +25,8 @@ class Slightish::TestCase
 
   def passed?
     @actual_output == (@expected_output || '') &&
-    @actual_error_output == (@expected_error_output || '') &&
-    @actual_exit_code == @expected_exit_code
+      @actual_error_output == (@expected_error_output || '') &&
+      @actual_exit_code == @expected_exit_code
   end
 
   def failure_description
@@ -41,7 +41,7 @@ class Slightish::TestCase
       end
 
       if @actual_output.empty?
-        res += "Actual stdout: empty".green.bold
+        res += "Actual stdout: empty\n".green.bold
       else
         res += "Actual stdout:\n".green.bold
         res += @actual_output.gray
@@ -58,7 +58,7 @@ class Slightish::TestCase
       end
 
       if @actual_error_output.empty?
-        res += "Actual stderr: empty".green.bold
+        res += "Actual stderr: empty\n".green.bold
       else
         res += "Actual stderr:\n".green.bold
         res += @actual_error_output.gray
@@ -67,8 +67,8 @@ class Slightish::TestCase
 
     if @actual_exit_code != @expected_exit_code
       res += "\n\n" unless res == ''
-      res += "Expected exit code: ".red.bold + @expected_exit_code.to_s.gray + "\n"
-      res += "Actual error code: ".green.bold + @actual_exit_code.to_s.gray
+      res += 'Expected exit code: '.red.bold + @expected_exit_code.to_s.gray + "\n"
+      res += 'Actual error code: '.green.bold + @actual_exit_code.to_s.gray
     end
 
     res
@@ -76,9 +76,9 @@ class Slightish::TestCase
 
   def source_description
     if @start_line == @end_line
-      return "#{@source_file}:@{@start_line}"
+      "#{@source_file}:@{@start_line}"
     else
-      return "#{@source_file}:#{@start_line}-#{@end_line}"
+      "#{@source_file}:#{@start_line}-#{@end_line}"
     end
   end
 
@@ -97,7 +97,7 @@ class Slightish::TestCase
       @raw_expected_output += "\n" + str
     end
   end
-  
+
   def append_expected_error_output(str)
     if @raw_expected_error_output.nil?
       @raw_expected_error_output = str

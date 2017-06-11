@@ -17,11 +17,11 @@ class Slightish::TestSuite
     begin
       @test_cases.each do |test|
         test.run(sandbox)
-        unless test.passed?
-          puts("❌  #{test.source_description}".bold)
-          puts(test.failure_description)
-          puts()
-        end
+        next if test.passed?
+
+        puts("❌  #{test.source_description}".bold)
+        puts(test.failure_description)
+        puts
       end
     ensure
       sandbox.delete
@@ -29,11 +29,11 @@ class Slightish::TestSuite
   end
 
   def passed?
-    @test_cases.all? { |test| test.passed? }
+    @test_cases.all?(&:passed?)
   end
 
   def passed_count
-    @test_cases.count { |test| test.passed? }
+    @test_cases.count?(&:passed?)
   end
 
   def failed_count
@@ -96,15 +96,15 @@ class Slightish::TestSuite
           current_case.end_line = line_number
 
           state = ParseState::READING_MULTILINE_COMMAND
-          next
         else
           # final line of multiline input
           current_case.append_command(line)
           current_case.end_line = line_number
 
           state = ParseState::AWAITING_RESULT_OR_COMMAND
-          next
         end
+
+        next
       end
 
       # Skip lines not intended for us
@@ -121,7 +121,7 @@ class Slightish::TestSuite
         end
       end
 
-      if state == ParseState::AWAITING_RESULT_OR_COMMAND || state == ParseState::AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND
+      if [ParseState::AWAITING_RESULT_OR_COMMAND, ParseState::AWAITING_STDERR_OR_EXIT_CODE_OR_COMMAND].include?(state)
         if line =~ /^@ (?<error_output>.*)$/
           # accumulating expected stderr
           current_case.append_expected_error_output(Regexp.last_match(:error_output))
@@ -140,21 +140,17 @@ class Slightish::TestSuite
       end
 
       # state is anything, and we are looking for a new command
-      if line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
-        current_case = Slightish::TestCase.new(file_name)
-        current_case.start_line = current_case.end_line = line_number
-        @test_cases << current_case
+      raise "invalid line '#{line}'" unless line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
 
-        current_case.append_command(Regexp.last_match(:cmd))
+      current_case = Slightish::TestCase.new(file_name)
+      current_case.start_line = current_case.end_line = line_number
+      @test_cases << current_case
 
-        # entering multiline mode if we matched the slash
-        multiline = Regexp.last_match(:multiline) == '\\'
-        state = multiline ? ParseState::READING_MULTILINE_COMMAND : ParseState::AWAITING_RESULT_OR_COMMAND
-        next
-      else
-        # an error
-        raise RuntimeError, "invalid line '#{line}'"
-      end
+      current_case.append_command(Regexp.last_match(:cmd))
+
+      # entering multiline mode if we matched the slash
+      multiline = Regexp.last_match(:multiline) == '\\'
+      state = multiline ? ParseState::READING_MULTILINE_COMMAND : ParseState::AWAITING_RESULT_OR_COMMAND
     end
   end
 end

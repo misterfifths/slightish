@@ -7,19 +7,9 @@ class Slightish::Sandbox
   def initialize(template_dir: nil, prefix: 'slightish')
     @path = Dir.mktmpdir(prefix)
 
-    unless template_dir.nil?
-      # The '.' prevents cp_r from making a new directory at the destination --
-      # kind of the equivalent of '/*' in bash.
-      FileUtils.cp_r(File.join(template_dir, '.'), @path)
-    end
-
-    if block_given?
-      begin
-        Dir.chdir(@path) { yield self }
-      ensure
-        delete
-      end
-    end
+    # The '.' prevents cp_r from making a new directory at the destination --
+    # kind of the equivalent of '/*' in bash.
+    FileUtils.cp_r(File.join(template_dir, '.'), @path) unless template_dir.nil?
   end
 
   def delete

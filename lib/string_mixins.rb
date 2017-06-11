@@ -2,32 +2,31 @@ require 'open3'
 
 class String
   def self.color_output?
-      STDOUT.isatty
+    STDOUT.isatty
   end
 
-  { :red     => 1,
-    :green   => 2,
-    :yellow  => 3,
-    :blue    => 4,
-    :gray    => 7
-  }.each do |name, code|
-      bg_name = ('bg_' + name.to_s).to_sym
+  { red: 1,
+    green: 2,
+    yellow: 3,
+    blue: 4,
+    gray: 7 }.each do |name, code|
+    bg_name = ('bg_' + name.to_s).to_sym
 
-      if color_output?
-          define_method(name) { "\e[#{code + 30}m#{self}\e[39m" }
-          define_method(bg_name) { "\e[#{code + 40}m#{self}\e[49m" }
-      else
-          define_method(name) { self }
-          define_method(bg_name) { self }
-      end
+    if color_output?
+      define_method(name) { "\e[#{code + 30}m#{self}\e[39m" }
+      define_method(bg_name) { "\e[#{code + 40}m#{self}\e[49m" }
+    else
+      define_method(name) { self }
+      define_method(bg_name) { self }
+    end
   end
 
-  { :bold => 1, :faint => 2 }.each do |name, code|
-      if color_output?
-          define_method(name) { "\e[#{code}m#{self}\e[22m" }
-      else
-          define_method(name) { self }
-      end
+  { bold: 1, faint: 2 }.each do |name, code|
+    if color_output?
+      define_method(name) { "\e[#{code}m#{self}\e[22m" }
+    else
+      define_method(name) { self }
+    end
   end
 
   def expand(chdir: nil, source: nil)
@@ -47,7 +46,7 @@ class String
   private
 
   def _capture_stdout_with_logging(cmd, chdir, source)
-    stdout, stderr, status = Open3.capture3(cmd, {:chdir => chdir})
+    stdout, stderr, status = Open3.capture3(cmd, { chdir: chdir })
 
     unless stderr.empty?
       message = 'warning: stderr from command substitution ('
@@ -56,8 +55,8 @@ class String
       STDERR.puts(message.yellow)
     end
 
-    unless status.exitstatus == 0
-      message = "warning: nonzero exit code ({#status.exitstatus}) from command substitution ("
+    unless status.exitstatus.zero?
+      message = "warning: nonzero exit code (#{status.exitstatus}) from command substitution ("
       message += source + '; ' unless source.nil? || source.empty?
       message += "'#{cmd}')"
       STDERR.puts(message.yellow)

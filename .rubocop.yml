@@ -1,0 +1,39 @@
+AllCops:
+  Include:
+    - 'lib/**/*'
+    - 'bin/*'
+  Exclude:
+    - 'bin/setup'
+
+Metrics/LineLength:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Layout/CommentIndentation:
+  Enabled: false
+
+
+# Ideally these are TODOs:
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
