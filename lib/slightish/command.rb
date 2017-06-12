@@ -2,7 +2,7 @@ require 'slightish/testsuite'
 
 class Slightish::Command
   def self.run(argv)
-    new.run(argv, sandbox_template_dir: ENV['SLIGHTISH_TEMPLATE_DIR'])
+    new.run(argv, sandbox_template_dir: ENV['SLIGHTISH_TEMPLATE_DIR']) unless argv.empty?
   end
 
   def run(test_files, sandbox_template_dir: nil)
