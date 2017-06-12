@@ -1,5 +1,5 @@
-require 'slightish/testcase'
 require 'slightish/sandbox'
+require 'slightish/test_case'
 
 class Slightish::TestSuite
   attr_reader :name, :path, :test_cases

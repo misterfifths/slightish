@@ -1,4 +1,4 @@
-require 'slightish/testsuite'
+require 'slightish/test_suite'
 
 class Slightish::Command
   def self.run(argv)
