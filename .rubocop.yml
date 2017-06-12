@@ -2,8 +2,15 @@ AllCops:
   Include:
     - 'lib/**/*'
     - 'bin/*'
+    - 'exe/*'
+    - 'test/**/*'
   Exclude:
     - 'bin/setup'
+
+Style/FileName:
+  Exclude:
+    - 'Gemfile'
+    - 'Rakefile'
 
 Metrics/LineLength:
   Enabled: false
