@@ -2,17 +2,17 @@ require 'slightish/testsuite'
 
 class Slightish::Command
   def self.run(argv)
-    new.run(argv)
+    new.run(argv, sandbox_template_dir: ENV['SLIGHTISH_TEMPLATE_DIR'])
   end
 
-  def run(test_files)
+  def run(test_files, sandbox_template_dir: nil)
     Thread.abort_on_exception = true
 
     suites = []
     worker_threads = []
 
     test_files.each do |file|
-      suite = Slightish::TestSuite.new(file)
+      suite = Slightish::TestSuite.new(file, sandbox_template_dir: sandbox_template_dir)
       suites << suite
       worker_threads << Thread.new { suite.run }
     end

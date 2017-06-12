@@ -3,16 +3,18 @@ require 'slightish/sandbox'
 
 class Slightish::TestSuite
   attr_reader :name, :path, :test_cases
+  attr_reader :sandbox_template_dir
 
-  def initialize(path)
+  def initialize(path, sandbox_template_dir: nil)
     @path = path
     @name = File.basename(path)
+    @sandbox_template_dir = sandbox_template_dir
 
     parse(path, File.read(path))
   end
 
   def run
-    sandbox = Slightish::Sandbox.new(template_dir: ENV['SLIGHTISH_TEMPLATE_DIR'])
+    sandbox = Slightish::Sandbox.new(template_dir: @sandbox_template_dir)
 
     begin
       @test_cases.each { |test| test.run(sandbox) }
