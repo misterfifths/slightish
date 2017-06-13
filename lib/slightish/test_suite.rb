@@ -147,8 +147,8 @@ class Slightish::TestSuite
       end
 
       # state is anything, and we are looking for a new command
-      unless line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
-        raise SyntaxError, "invalid line in test file #{file_name}:#{line_number}; expected a '$ ' line"
+      unless line =~ /^\$ (?<cmd>.+?)(?<multiline>\\?)$/
+        raise SyntaxError, "invalid line in test file #{file_name}:#{line_number}; expected a '$ <command>' line"
       end
 
       current_case = Slightish::TestCase.new(file_name)
