@@ -49,7 +49,11 @@ class String
   private
 
   def capture_stdout_with_logging(cmd, chdir, source)
-    stdout, stderr, status = Open3.capture3(cmd, { chdir: chdir })
+    if chdir.nil?
+      stdout, stderr, status = Open3.capture3(cmd)
+    else
+      stdout, stderr, status = Open3.capture3(cmd, { chdir: chdir })
+    end
 
     unless stderr.empty?
       message = 'warning: stderr from command substitution ('
