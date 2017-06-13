@@ -5,12 +5,16 @@ class Slightish::TestSuite
   attr_reader :name, :path, :test_cases
   attr_reader :sandbox_template_dir
 
-  def initialize(path, sandbox_template_dir: nil)
+  def self.from_file(path, sandbox_template_dir: nil)
+    new(path, File.read(path), sandbox_template_dir: sandbox_template_dir)
+  end
+
+  def initialize(path, contents, sandbox_template_dir: nil)
     @path = path
     @name = File.basename(path)
     @sandbox_template_dir = sandbox_template_dir
 
-    parse(path, File.read(path))
+    parse(path, contents)
   end
 
   def run
@@ -144,8 +148,7 @@ class Slightish::TestSuite
 
       # state is anything, and we are looking for a new command
       unless line =~ /^\$ (?<cmd>.*?)(?<multiline>\\?)$/
-        STDERR.puts("error: invalid line in test file #{file_name}:#{line_number}; expected a '$ ' line")
-        Process.exit(2)
+        raise SyntaxError, "invalid line in test file #{file_name}:#{line_number}; expected a '$ ' line"
       end
 
       current_case = Slightish::TestCase.new(file_name)

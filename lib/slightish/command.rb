@@ -12,7 +12,7 @@ class Slightish::Command
     worker_threads = []
 
     test_files.each do |file|
-      suite = Slightish::TestSuite.new(file, sandbox_template_dir: sandbox_template_dir)
+      suite = Slightish::TestSuite.from_file(file, sandbox_template_dir: sandbox_template_dir)
       suites << suite
       worker_threads << Thread.new { suite.run }
     end
