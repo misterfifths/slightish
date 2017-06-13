@@ -3,7 +3,7 @@ AllCops:
     - 'lib/**/*'
     - 'bin/*'
     - 'exe/*'
-    - 'test/**/*'
+    - 'test/**/*.rb'
   Exclude:
     - 'bin/setup'
 
@@ -11,6 +11,22 @@ Style/FileName:
   Exclude:
     - 'Gemfile'
     - 'Rakefile'
+
+# Using %[...] to avoid conflicts with parens in shell expansions
+Style/PercentLiteralDelimiters:
+  Exclude:
+    - 'test/**/*_test.rb'
+    - 'test/**/*_tests.rb'
+
+# Need trailing whitespace for some test suites
+Layout/TrailingWhitespace:
+  Exclude:
+    - 'test/**/*_test.rb'
+    - 'test/**/*_tests.rb'
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'test/lib/slightish_test.rb'
 
 Metrics/LineLength:
   Enabled: false
