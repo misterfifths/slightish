@@ -105,7 +105,7 @@ class Slightish::TestSuite
           state = ParseState::READING_MULTILINE_COMMAND
         else
           # final line of multiline input; consume the whole thing
-          current_case.append_command(line)
+          current_case.append_command(line.chomp)
           current_case.end_line = line_number
 
           state = ParseState::AWAITING_RESULT_OR_COMMAND
