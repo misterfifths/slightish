@@ -7,6 +7,8 @@ require 'slightish/version'
 Gem::Specification.new do |spec|
   spec.name          = 'slightish'
   spec.version       = Slightish::VERSION
+  spec.required_ruby_version = '>=2.2.1'
+
   spec.authors       = ['Tim Clem']
   spec.email         = ['tim.clem@gmail.com']
 
