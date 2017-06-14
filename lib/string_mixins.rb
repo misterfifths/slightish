@@ -15,8 +15,10 @@ class String
     bg_name = ('bg_' + name.to_s).to_sym
 
     if color_output?
+      # :nocov:
       define_method(name) { "\e[#{code + 30}m#{self}\e[39m" }
       define_method(bg_name) { "\e[#{code + 40}m#{self}\e[49m" }
+      # :nocov:
     else
       define_method(name) { self }
       define_method(bg_name) { self }
@@ -25,7 +27,9 @@ class String
 
   { bold: 1, faint: 2 }.each do |name, code|
     if color_output?
+      # :nocov:
       define_method(name) { "\e[#{code}m#{self}\e[22m" }
+      # :nocov:
     else
       define_method(name) { self }
     end
