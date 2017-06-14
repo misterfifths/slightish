@@ -36,4 +36,10 @@ class ExpansionTests < SlightishTest
 
   add_expand_test('does not understand escapes', '\\$PATH', "\\#{ENV['PATH']}")
   add_expand_test('does not understand single quotes', '\'$PATH\'', "'#{ENV['PATH']}'")
+
+  # Chdir
+
+  def test_expand_chdir
+    assert_equal('/', '$(pwd)'.expand(chdir: '/'))
+  end
 end

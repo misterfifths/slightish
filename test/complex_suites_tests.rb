@@ -35,4 +35,9 @@ class ComplexSuitesTests < SlightishTest
     assert_equal(1, s.failed_count)
     assert_equal(1, s.passed_count)
   end
+
+  def test_file_loading
+    suite = Slightish::TestSuite.from_file(File.join(fixtures_dir, 'test-suite.tush.md'))
+    assert_equal(3, suite.test_cases.length)
+  end
 end

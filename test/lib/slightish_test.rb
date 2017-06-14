@@ -1,6 +1,10 @@
 require 'minitest'
 
 class SlightishTest < Minitest::Test
+  def fixtures_dir
+    File.expand_path('../../fixtures', __FILE__)
+  end
+
   def unheredoc(str)
     # Strips whitespace-only leading and trailing lines,
     # and removes the minimum shared indentation from all lines
