@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Tim Clem']
   spec.email         = ['tim.clem@gmail.com']
 
-  spec.summary       = 'Literate testing of shell tools}'
+  spec.summary       = 'Literate testing of shell tools'
   spec.homepage      = 'http://github.com/misterfifths/slightish'
   spec.license       = 'MIT'
 
