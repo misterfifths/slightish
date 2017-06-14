@@ -42,42 +42,15 @@ class Slightish::TestCase
 
   def failure_description
     res = ''
+    res += output_failure_description('stdout', @expected_output, @actual_output) unless @expected_output == @actual_output
 
-    if @actual_output != (@expected_output || '')
-      if @expected_output.empty?
-        res += "Expected stdout: empty\n".red.bold
-      else
-        res += "Expected stdout:\n".red.bold
-        res += @expected_output.gray + "\n"
-      end
-
-      if @actual_output.empty?
-        res += 'Actual stdout: empty'.green.bold
-      else
-        res += "Actual stdout:\n".green.bold
-        res += @actual_output.gray
-      end
-    end
-
-    if @actual_error_output != (@expected_error_output || '')
-      res += "\n\n" unless res == ''
-      if @expected_error_output.empty?
-        res += "Expected stderr: empty\n".red.bold
-      else
-        res += "Expected stderr:\n".red.bold
-        res += (@expected_error_output || '').gray + "\n"
-      end
-
-      if @actual_error_output.empty?
-        res += 'Actual stderr: empty'.green.bold
-      else
-        res += "Actual stderr:\n".green.bold
-        res += @actual_error_output.gray
-      end
+    if @expected_error_output != @actual_error_output
+      res += "\n\n" unless res.empty?
+      res += output_failure_description('stderr', @expected_error_output, @actual_error_output)
     end
 
     if @actual_exit_code != @expected_exit_code
-      res += "\n\n" unless res == ''
+      res += "\n\n" unless res.empty?
       res += 'Expected exit code: '.red.bold + @expected_exit_code.to_s.gray + "\n"
       res += 'Actual exit code: '.green.bold + @actual_exit_code.to_s.gray
     end
@@ -123,6 +96,26 @@ class Slightish::TestCase
   end
 
   private
+
+  def output_failure_description(name, expected, actual)
+    res = ''
+
+    if expected.empty?
+      res += "Expected #{name}: empty\n".red.bold
+    else
+      res += "Expected #{name}:\n".red.bold
+      res += expected.gray + "\n"
+    end
+
+    if actual.empty?
+      res += "Actual #{name}: empty".green.bold
+    else
+      res += "Actual #{name}:\n".green.bold
+      res += actual.gray
+    end
+
+    res
+  end
 
   def expand(sandbox)
     @command = @raw_command.expand(chdir: sandbox.path, source: source_description)
