@@ -60,7 +60,7 @@ slightish my-first-test.md my-second-test
 
 This will run all the tests in all the specified files, and output details about any failures. The command will exit with status code 1 if any tests fail.
 
-Let's add a failing test real quick:
+As a demonstration, let's add a failing test:
 
 ```sh
 $ exit 2
@@ -79,14 +79,43 @@ Expected exit code: 0
 Actual exit code: 2
 
 ----------
-README.md 	6 passed	1 failed
+README.md 	11 passed	1 failed
 
-Total tests: 7
-Passed: 6
+Total tests: 12
+Passed: 11
 Failed: 1
 ```
 
 ### More features
+
+#### Command and variable expansion
+
+Environmental variables in your command, stdout, and stderr are all expanded. The syntax is `$VARIABLE` or `${VARIABLE}`. Note that escaping and quoting of such strings is *not* supported; they will be expanded regardless.
+
+```sh
+$ echo $USER
+| $USER
+
+$ echo "${HOME}/dir"
+| ${HOME}/dir
+```
+
+Nonexistent environmental variables will not be expanded, and the original string will be passed through unaltered:
+
+```sh
+$ echo '$_TOTAL_NONSENSE_'
+| $_TOTAL_NONSENSE_
+```
+
+Subcommands are also expanded, using the syntax `$(cmd)` or `` `cmd` ``. Only the stdout of subcommands is captured. If a subcommand produces output on stderr, or has a nonzero exit status, a warning is printed.
+
+```sh
+$ echo "$(pwd)"
+| `pwd`
+
+$ echo `whoami`
+| $USER
+```
 
 #### Sandboxes
 
