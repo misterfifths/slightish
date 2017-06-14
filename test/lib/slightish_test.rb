@@ -6,18 +6,6 @@ class SlightishTest < Minitest::Test
     File.expand_path('../../fixtures', __FILE__)
   end
 
-  def capture_output
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-
-    yield if block_given?
-
-    return $stdout.string, $stderr.string
-  ensure
-    $stdout = STDOUT
-    $stderr = STDERR
-  end
-
   def unheredoc(str)
     # Strips whitespace-only leading and trailing lines,
     # and removes the minimum shared indentation from all lines
