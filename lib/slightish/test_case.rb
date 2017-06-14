@@ -45,7 +45,7 @@ class Slightish::TestCase
       end
 
       if @actual_output.empty?
-        res += "Actual stdout: empty\n".green.bold
+        res += "Actual stdout: empty".green.bold
       else
         res += "Actual stdout:\n".green.bold
         res += @actual_output.gray
@@ -62,7 +62,7 @@ class Slightish::TestCase
       end
 
       if @actual_error_output.empty?
-        res += "Actual stderr: empty\n".green.bold
+        res += "Actual stderr: empty".green.bold
       else
         res += "Actual stderr:\n".green.bold
         res += @actual_error_output.gray
@@ -72,7 +72,7 @@ class Slightish::TestCase
     if @actual_exit_code != @expected_exit_code
       res += "\n\n" unless res == ''
       res += 'Expected exit code: '.red.bold + @expected_exit_code.to_s.gray + "\n"
-      res += 'Actual error code: '.green.bold + @actual_exit_code.to_s.gray
+      res += 'Actual exit code: '.green.bold + @actual_exit_code.to_s.gray
     end
 
     res
