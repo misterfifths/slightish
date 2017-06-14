@@ -5,9 +5,9 @@ gemspec
 
 group :development do
   gem 'bundler'
+  gem 'coveralls'
   gem 'minitest'
   gem 'rake'
   gem 'rubocop'
   gem 'simplecov'
-  gem 'coveralls'
 end

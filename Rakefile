@@ -11,7 +11,9 @@ end
 task default: :test
 
 desc 'Run rubocop'
-RuboCop::RakeTask.new(:rubocop)
+RuboCop::RakeTask.new(:rubocop) do
+  $VERBOSE = true
+end
 
 desc 'Run rubocop'
 task lint: :rubocop
