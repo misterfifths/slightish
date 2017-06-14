@@ -27,12 +27,14 @@ class Slightish::TestSuite
     end
   end
 
-  def print_failures
+  def failure_description
+    res = ''
     @test_cases.select(&:failed?).each do |test|
-      puts("❌  #{test.source_description}".bold)
-      puts(test.failure_description)
-      puts
+      res += "❌  #{test.source_description}\n".bold
+      res += test.failure_description + "\n\n"
     end
+
+    res
   end
 
   def passed?

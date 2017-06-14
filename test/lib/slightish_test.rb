@@ -1,8 +1,21 @@
 require 'minitest'
+require 'stringio'
 
 class SlightishTest < Minitest::Test
   def fixtures_dir
     File.expand_path('../../fixtures', __FILE__)
+  end
+
+  def capture_output
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+
+    yield if block_given?
+
+    return $stdout.string, $stderr.string
+  ensure
+    $stdout = STDOUT
+    $stderr = STDERR
   end
 
   def unheredoc(str)
@@ -94,7 +107,7 @@ class SlightishTest < Minitest::Test
     define_method(method_name) { assert_equal(after_expand, before_expand.expand) }
   end
 
-  def self.add_failure_test(description, suite_str, expected_failure_descriptions, sandbox_template_dir: nil)
+  def self.add_case_failure_test(description, suite_str, expected_failure_descriptions, sandbox_template_dir: nil)
     method_name = _method_for_description(description)
     define_method(method_name) do
       with_suite(suite_str, sandbox_template_dir: sandbox_template_dir) do |suite|

@@ -1,12 +1,12 @@
 require_relative 'test_helper'
 
-class FailureDescriptionTests < SlightishTest
-  add_failure_test('a passing suite', %[
+class CaseFailureDescriptionTests < SlightishTest
+  add_case_failure_test('a passing suite', %[
     $ echo 1
     | 1
   ], '')
 
-  add_failure_test('incorrect stdout', %[
+  add_case_failure_test('incorrect stdout', %[
     $ echo 1
     | 2
   ], %[
@@ -16,7 +16,7 @@ class FailureDescriptionTests < SlightishTest
     1
   ])
 
-  add_failure_test('incorrect empty stdout', %[
+  add_case_failure_test('incorrect empty stdout', %[
     $ echo 1
   ], %[
     Expected stdout: empty
@@ -24,7 +24,7 @@ class FailureDescriptionTests < SlightishTest
     1
   ])
 
-  add_failure_test('spurious stdout', %[
+  add_case_failure_test('spurious stdout', %[
     $ echo
     | 1
   ], %[
@@ -33,7 +33,7 @@ class FailureDescriptionTests < SlightishTest
     Actual stdout: empty
   ])
 
-  add_failure_test('incorrect stderr', %[
+  add_case_failure_test('incorrect stderr', %[
     $ echo 1 >&2
     @ 2
   ], %[
@@ -43,7 +43,7 @@ class FailureDescriptionTests < SlightishTest
     1
   ])
 
-  add_failure_test('incorrect empty stderr', %[
+  add_case_failure_test('incorrect empty stderr', %[
     $ echo 1 >&2
   ], %[
     Expected stderr: empty
@@ -51,7 +51,7 @@ class FailureDescriptionTests < SlightishTest
     1
   ])
 
-  add_failure_test('spurious stderr', %[
+  add_case_failure_test('spurious stderr', %[
     $ echo 1
     | 1
     @ 2
@@ -61,7 +61,7 @@ class FailureDescriptionTests < SlightishTest
     Actual stderr: empty
   ])
 
-  add_failure_test('incorrect exit code', %[
+  add_case_failure_test('incorrect exit code', %[
     $ exit 1
     ? 2
   ], %[
@@ -69,12 +69,12 @@ class FailureDescriptionTests < SlightishTest
     Actual exit code: 1
   ])
 
-  add_failure_test('explicit zero exit code', %[
+  add_case_failure_test('explicit zero exit code', %[
     $ echo
     ? 0
   ], '')
 
-  add_failure_test('everything wrong', %[
+  add_case_failure_test('everything wrong', %[
     $ echo 1 >&2; echo 2; exit 2
     | 1
     @ 2
@@ -94,7 +94,7 @@ class FailureDescriptionTests < SlightishTest
     Actual exit code: 2
   ])
 
-  add_failure_test('multiple tests', %[
+  add_case_failure_test('multiple tests', %[
     $ echo 2
     | 1
     $ exit 3

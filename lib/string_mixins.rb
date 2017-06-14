@@ -2,7 +2,7 @@ require 'open3'
 
 class String
   def self.color_output?
-    STDOUT.isatty unless ENV['SLIGHTISH_NO_COLOR']
+    $stdout.isatty unless ENV['SLIGHTISH_NO_COLOR']
   end
 
   {
@@ -63,14 +63,14 @@ class String
       message = 'warning: stderr from command substitution ('
       message += source + '; ' unless source.nil? || source.empty?
       message += "'#{cmd}') will be ignored"
-      STDERR.puts(message.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
+      $stderr.puts(message.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
     end
 
     unless status.exitstatus.zero?
       message = "warning: nonzero exit code (#{status.exitstatus}) from command substitution ("
       message += source + '; ' unless source.nil? || source.empty?
       message += "'#{cmd}')"
-      STDERR.puts(message.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
+      $stderr.puts(message.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
     end
 
     stdout.chomp

@@ -19,7 +19,9 @@ class Slightish::Command
 
     worker_threads.each(&:join)
 
-    suites.each(&:print_failures)
+    suites.each do |suite|
+      puts(suite.failure_description) if suite.failed?
+    end
 
     puts('----------') if suites.any?(&:failed?)
 
