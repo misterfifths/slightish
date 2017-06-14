@@ -6,6 +6,7 @@ AllCops:
     - 'test/**/*.rb'
   Exclude:
     - 'bin/setup'
+    - 'vendor/**/*'
 
 Style/FileName:
   Exclude:
