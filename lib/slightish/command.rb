@@ -2,7 +2,17 @@ require 'slightish/test_suite'
 
 class Slightish::Command
   def self.run(argv)
-    new.run(argv, sandbox_template_dir: ENV['SLIGHTISH_TEMPLATE_DIR']) unless argv.empty?
+    if argv.empty? || argv.include?('--help') || argv.include?('-h')
+      print_usage
+      Process.exit(2)
+    else
+      new.run(argv, sandbox_template_dir: ENV['SLIGHTISH_TEMPLATE_DIR'])
+    end
+  end
+
+  def self.print_usage
+    $stderr.puts('Literate testing of shell tools')
+    $stderr.puts('usage: slightish <file...>')
   end
 
   def run(test_files, sandbox_template_dir: nil)

@@ -68,10 +68,31 @@ class CommandTests < SlightishTest
 
   def test_no_arguments
     out, err = capture_io do
-      assert_nil(Slightish::Command.run([]))
+      exc = assert_raises(SystemExit) { Slightish::Command.run([]) }
+      assert_equal(exc.status, 2)
     end
 
-    assert_empty(err)
+    refute_empty(err)
+    assert_empty(out)
+  end
+
+  def test_short_help_arg
+    out, err = capture_io do
+      exc = assert_raises(SystemExit) { Slightish::Command.run(['-h', 'blah']) }
+      assert_equal(exc.status, 2)
+    end
+
+    refute_empty(err)
+    assert_empty(out)
+  end
+
+  def test_long_help_arg
+    out, err = capture_io do
+      exc = assert_raises(SystemExit) { Slightish::Command.run(['blah', '--help']) }
+      assert_equal(exc.status, 2)
+    end
+
+    refute_empty(err)
     assert_empty(out)
   end
 end
