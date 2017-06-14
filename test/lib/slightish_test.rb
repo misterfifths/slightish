@@ -90,6 +90,23 @@ class SlightishTest < Minitest::Test
     define_method(method_name) { assert_equal(after_expand, before_expand.expand) }
   end
 
+  def self.add_failure_test(description, suite_str, expected_failure_descriptions, sandbox_template_dir: nil)
+    method_name = _method_for_description(description)
+    define_method(method_name) do
+      with_suite(suite_str, sandbox_template_dir: sandbox_template_dir) do |suite|
+        suite.run
+
+        if expected_failure_descriptions.is_a?(Array)
+          suite.test_cases.each_with_index do |test, i|
+            assert_equal(unheredoc(expected_failure_descriptions[i]), test.failure_description)
+          end
+        else
+          assert_equal(unheredoc(expected_failure_descriptions), suite.test_cases[0].failure_description)
+        end
+      end
+    end
+  end
+
   def self._method_for_description(description)
     ('test_' + description.gsub(/\s+/, '_')).downcase.to_sym
   end

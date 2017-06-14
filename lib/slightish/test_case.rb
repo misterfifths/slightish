@@ -45,7 +45,7 @@ class Slightish::TestCase
       end
 
       if @actual_output.empty?
-        res += "Actual stdout: empty".green.bold
+        res += 'Actual stdout: empty'.green.bold
       else
         res += "Actual stdout:\n".green.bold
         res += @actual_output.gray
@@ -62,7 +62,7 @@ class Slightish::TestCase
       end
 
       if @actual_error_output.empty?
-        res += "Actual stderr: empty".green.bold
+        res += 'Actual stderr: empty'.green.bold
       else
         res += "Actual stderr:\n".green.bold
         res += @actual_error_output.gray
