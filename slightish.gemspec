@@ -13,6 +13,12 @@ Gem::Specification.new do |spec|
   spec.email         = ['tim.clem@gmail.com']
 
   spec.summary       = 'Literate testing of shell tools'
+  spec.description   = %(
+    slightish lets you write and run tests for shell tools in a
+    simple, flexible syntax, intermingled with any other file
+    format (Markdown, plain text, HTML). Your documentation can
+    double as your tests.
+  ).strip.gsub(/\s+/, ' ')
   spec.homepage      = 'http://github.com/misterfifths/slightish'
   spec.license       = 'MIT'
 
