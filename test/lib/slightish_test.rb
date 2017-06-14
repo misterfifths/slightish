@@ -56,12 +56,11 @@ class SlightishTest < Minitest::Test
   end
 
   class SuiteObject
-    attr_reader :parent, :description, :str, :sandbox_template_dir
-
     def initialize(parent, description, str)
       @parent = parent
       @description = description
       @str = str
+      @sandbox_template_dir = nil
     end
 
     def should_pass

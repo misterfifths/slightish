@@ -72,7 +72,7 @@ class LiterateParsingTests < SlightishTest
     )
   end
 
-  suite('intermingled', %[
+  suite('intermingled 2', %[
      $ This prose should
     $ echo 2
      | be ignored even though it

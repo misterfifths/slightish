@@ -28,7 +28,7 @@ class ExpansionTests < SlightishTest
   # Command edge cases
 
   add_expand_test('only captures stdout of cmd', '$(echo 1 >&2)', '')
-  add_expand_test('only captures stdout of cmd', '$(echo 1 >&2; echo 2)', '2')
+  add_expand_test('only captures stdout of cmd 2', '$(echo 1 >&2; echo 2)', '2')
 
   add_expand_test('ignores nonzero exit codes', '$(echo 1; exit 1)', '1')
 

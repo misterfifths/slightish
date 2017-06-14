@@ -12,6 +12,13 @@ class Slightish::TestCase
   def initialize(source_file)
     @source_file = source_file
     @expected_exit_code = 0
+
+    @start_line = @end_line = -1
+    @raw_command = @command = nil
+    @raw_expected_output = @expected_output = nil
+    @raw_expected_error_output = @expected_error_output = nil
+    @actual_output = @actual_error_output = nil
+    @actual_exit_code = nil
   end
 
   def run(sandbox)
