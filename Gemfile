@@ -9,4 +9,5 @@ group :development do
   gem 'rake'
   gem 'rubocop'
   gem 'simplecov'
+  gem 'coveralls'
 end
