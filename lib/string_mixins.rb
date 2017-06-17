@@ -52,6 +52,13 @@ class String
 
   private
 
+  def puts_warning(message, cmd, source)
+    s = "warning: #{message} ("
+    s += source + '; ' unless source.nil? || source.empty?
+    s += "'#{cmd}')"
+    $stderr.puts(s.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
+  end
+
   def capture_stdout_with_logging(cmd, chdir, source)
     if chdir.nil?
       stdout, stderr, status = Open3.capture3(cmd)
@@ -59,19 +66,8 @@ class String
       stdout, stderr, status = Open3.capture3(cmd, { chdir: chdir })
     end
 
-    unless stderr.empty?
-      message = 'warning: stderr from command substitution ('
-      message += source + '; ' unless source.nil? || source.empty?
-      message += "'#{cmd}') will be ignored"
-      $stderr.puts(message.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
-    end
-
-    unless status.exitstatus.zero?
-      message = "warning: nonzero exit code (#{status.exitstatus}) from command substitution ("
-      message += source + '; ' unless source.nil? || source.empty?
-      message += "'#{cmd}')"
-      $stderr.puts(message.yellow) unless ENV['SLIGHTISH_NO_WARNINGS']
-    end
+    puts_warning('stderr from command substitution will be ignored', cmd, source) unless stderr.empty?
+    puts_warning("nonzero exit code (#{status.exitstatus}) from command substitution", cmd, source) unless status.exitstatus.zero?
 
     stdout.chomp
   end

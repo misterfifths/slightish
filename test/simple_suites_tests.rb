@@ -66,4 +66,11 @@ class SimpleSuitesTests < SlightishTest
     @ b
     ? 2
   ]).should_pass
+
+  # Edge cases
+
+  suite('missing command', %[
+    $ __total_nonsense_123_ a b c
+    | blah
+  ]).should_raise(Errno::ENOENT)
 end

@@ -128,7 +128,9 @@ class SlightishTest < Minitest::Test
   def self._add_raising_suite(exc_type, description, str, sandbox_template_dir: nil)
     method_name = _method_for_description(description)
     define_method(method_name) do
-      assert_raises(exc_type) { with_suite(str, sandbox_template_dir: sandbox_template_dir) }
+      assert_raises(exc_type) do
+        with_suite(str, sandbox_template_dir: sandbox_template_dir, &:run)
+      end
     end
   end
 

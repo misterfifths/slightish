@@ -32,6 +32,10 @@ class ExpansionTests < SlightishTest
 
   add_expand_test('ignores nonzero exit codes', '$(echo 1; exit 1)', '1')
 
+  def test_unknown_command
+    assert_raises(Errno::ENOENT) { '`_nonexistent_command_`'.expand }
+  end
+
   # Parsing edge cases
 
   add_expand_test('does not understand escapes', '\\$PATH', "\\#{ENV['PATH']}")
