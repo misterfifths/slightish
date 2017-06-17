@@ -38,9 +38,9 @@ $ echo stdout; echo stderr >&2; echo "more stdout"; exit 2
 
 That example covers 90% of the functionality. The syntax in detail works like this:
 
-- Lines that start with `$ ` are interpreted as commands to run in the shell. The `$` must be in the first column of the file and must be followed by a space.
-- Lines starting with `| ` specify the stdout of the most recent command. As with `$ `, the `|` must be in the first column and must be followed by a space. You may specify more than one `| ` line to test for multiline output.
-- Lines starting with `@ ` specify the stderr of the most recent command. You may also specify more than one `@ ` line per command.
+- Lines that start with `$ ` are interpreted as commands to run in the shell. The `$` must be in the first column of the file and must be followed by a space.
+- Lines starting with `| ` specify the stdout of the most recent command. As with `$ `, the `|` must be in the first column and must be followed by a space. You may specify more than one `| ` line to test for multiline output.
+- Lines starting with `@ ` specify the stderr of the most recent command. You may also specify more than one `@ ` line per command to test for multiline output on stderr.
 - A line of the form `? <positive integer>` specifies the expected exit code of the most recent command. You may omit a `? ` line for an expected exit code of zero.
 
 Specifying any of the above magic lines out of order is a syntax error; you must specify a command (`$ `), and then optionally stdout (`| `), stderr (`@ `), and the exit code (`? `). If a command is expected to produce no output and have an exit code of zero, you may omit everything but the `$ ` line:
