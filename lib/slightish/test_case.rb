@@ -60,7 +60,7 @@ class Slightish::TestCase
 
   def source_description
     if @start_line == @end_line
-      "#{@source_file}:@{@start_line}"
+      "#{@source_file}:#{@start_line}"
     else
       "#{@source_file}:#{@start_line}-#{@end_line}"
     end
