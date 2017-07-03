@@ -17,6 +17,13 @@ class SuiteFailureDescriptionTests < SlightishTest
     assert_equal("❌  immediate:1-2\n#{s.test_cases[0].failure_description}\n\n", s.failure_description)
   end
 
+  suite('failing single-line test', %[
+    $ exit 1
+  ]).should do |s|
+    s.run
+    assert_equal("❌  immediate:1\n#{s.test_cases[0].failure_description}\n\n", s.failure_description)
+  end
+
   suite('suite with multiple failures', %[
     $ echo 1
     | 2
