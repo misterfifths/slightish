@@ -2,7 +2,7 @@
 
 *Literate testing of shell scripts*
 
-[![Build Status](https://travis-ci.org/misterfifths/slightish.svg?branch=master)](https://travis-ci.org/misterfifths/slightish) [![Coverage Status](https://coveralls.io/repos/github/misterfifths/slightish/badge.svg?branch=master)](https://coveralls.io/github/misterfifths/slightish?branch=master) [![GPA](https://img.shields.io/codeclimate/github/misterfifths/slightish.svg)](https://codeclimate.com/github/misterfifths/slightish) [![npm](https://img.shields.io/gem/v/slightish.svg)](https://rubygems.org/gems/slightish)
+[![Build Status](https://travis-ci.org/misterfifths/slightish.svg?branch=master)](https://travis-ci.org/misterfifths/slightish) [![Coverage Status](https://coveralls.io/repos/github/misterfifths/slightish/badge.svg?branch=master)](https://coveralls.io/github/misterfifths/slightish?branch=master) [![GPA](https://img.shields.io/codeclimate/github/misterfifths/slightish.svg)](https://codeclimate.com/github/misterfifths/slightish) [![gem](https://img.shields.io/gem/v/slightish.svg)](https://rubygems.org/gems/slightish)
 
 
 ### What's this then?
